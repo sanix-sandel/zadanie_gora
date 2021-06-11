@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"images_upload/dbutils"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -84,10 +85,19 @@ func deleteFile(w http.ResponseWriter, r *http.Request) {
 func main() {
 	addr := flag.String("addr", ":8000", "HTTP network address")
 
+	var err error
+
+	DB, err = sql.Open("sqlite3", "./database.db")
+
+	if err != nil {
+		log.Println("Driver creation failed")
+	}
+
 	srv := &http.Server{
 		Addr:    *addr,
 		Handler: routes(),
 	}
+	dbutils.Initialize(DB)
 
 	log.Printf("Server started listening on localhost:8000")
 	log.Fatal(srv.ListenAndServe())
