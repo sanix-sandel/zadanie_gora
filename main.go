@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -59,7 +58,19 @@ func uploadFile(w http.ResponseWriter, r *http.Request) {
 	//create an image with data got from file uploaded
 	img := Image{Title: title, Url: filename, Size: int(header.Size)}
 
-	fmt.Println(img)
+	//insert to the db
+	statement, _ := DB.Prepare("INSERT INTO images (title, url, size) VALUES (?, ?, ?)")
+	result, err := statement.Exec(img.Title, img.Url, img.Size)
+	if err == nil {
+		newId, _ := result.LastInsertId()
+		img.Id = int(newId)
+		w.Header().Set("Content-Type", "application/json")
+	} else {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func getFiles(w http.ResponseWriter, r *http.Request) {
