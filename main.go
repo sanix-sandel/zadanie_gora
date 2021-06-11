@@ -38,7 +38,7 @@ func uploadFile(w http.ResponseWriter, r *http.Request) {
 
 	file, header, err := r.FormFile("file")
 	if err != nil {
-		log.Println("Error")
+		log.Println("Error uploading data")
 		return
 	}
 	defer file.Close()
@@ -99,7 +99,7 @@ func getFiles(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var img Image
 		if err := rows.Scan(&img.Id, &img.Title, &img.Url, &img.Size); err != nil {
-			log.Println("Error ")
+			log.Println("Error fetching from database")
 		}
 		images = append(images, img)
 	}
@@ -136,7 +136,7 @@ func deleteFile(w http.ResponseWriter, r *http.Request) {
 	}
 	err = os.Remove(img.Url)
 	if err != nil {
-		log.Println("Error")
+		log.Println("Error, file not in directory")
 		return
 	}
 
