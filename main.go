@@ -60,7 +60,7 @@ func uploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//create an image with data got from file uploaded
-	img := Image{Title: title, Url: filename, Size: int(header.Size)}
+	img := Image{Title: title, Url: "/" + filename, Size: int(header.Size)}
 
 	//insert to the db
 	statement, _ := DB.Prepare("INSERT INTO images (title, url, size) VALUES (?, ?, ?)")
@@ -111,11 +111,13 @@ func getFiles(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteFile(w http.ResponseWriter, r *http.Request) {
+
 	if r.Method != http.MethodDelete {
 		w.Header().Set("Allow", "DELETE")
 		http.Error(w, "Method Not Allowd", 405)
 		return
 	}
+
 	//getting the id parameter
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 
@@ -134,7 +136,7 @@ func deleteFile(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("File not found"))
 		return
 	}
-	err = os.Remove(img.Url)
+	err = os.Remove(img.Url[1:])
 	if err != nil {
 		log.Println("Error, file not in directory")
 		return
