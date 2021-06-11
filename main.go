@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"flag"
 	"images_upload/dbutils"
 	"io/ioutil"
@@ -76,6 +77,35 @@ func uploadFile(w http.ResponseWriter, r *http.Request) {
 
 func getFiles(w http.ResponseWriter, r *http.Request) {
 
+	if r.Method != http.MethodGet {
+		w.Header().Set("Allow", "GET")
+		http.Error(w, "Method Not Allowd", 405)
+		return
+	}
+
+	rows, err := DB.Query("SELECT * FROM images")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	defer rows.Close()
+
+	var images []Image
+
+	//Iterate in order to get all records
+	for rows.Next() {
+		var img Image
+		if err := rows.Scan(&img.Id, &img.Title, &img.Url, &img.Size); err != nil {
+			log.Println("Error ")
+		}
+		images = append(images, img)
+	}
+
+	//encode the records slice into json
+	resp_JSON, _ := json.Marshal(images)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(resp_JSON)
 }
 
 func deleteFile(w http.ResponseWriter, r *http.Request) {
