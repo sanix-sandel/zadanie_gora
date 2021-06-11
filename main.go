@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"path"
+	"strconv"
 	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -109,6 +110,28 @@ func getFiles(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteFile(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		w.Header().Set("Allow", "DELETE")
+		http.Error(w, "Method Not Allowd", 405)
+		return
+	}
+	//getting the id parameter
+	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+
+	if err != nil {
+		log.Println("Not found !")
+		return
+	}
+
+	//deleting file from db
+	deletestmt, _ := DB.Prepare("DELETE FROM images WHERE id=?")
+	_, err = deletestmt.Exec(id)
+	if err == nil {
+		w.WriteHeader(http.StatusOK)
+	} else {
+		log.Println(err)
+		return
+	}
 
 }
 
