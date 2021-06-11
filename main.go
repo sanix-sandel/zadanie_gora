@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"path"
 	"strconv"
 	"strings"
@@ -120,6 +121,22 @@ func deleteFile(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Println("Not found !")
+		return
+	}
+
+	//deleting file from the directory
+	var img Image
+	err = DB.QueryRow("SELECT * FROM images WHERE id=?", id).Scan(
+		&img.Id, &img.Title, &img.Url, &img.Size,
+	)
+	if err != nil {
+		log.Println("File image not found in the directory")
+		w.Write([]byte("File not found"))
+		return
+	}
+	err = os.Remove(img.Url)
+	if err != nil {
+		log.Println("Error")
 		return
 	}
 
