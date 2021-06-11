@@ -73,7 +73,7 @@ func uploadFile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
+	w.Write([]byte("Image uploaded"))
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -112,12 +112,6 @@ func getFiles(w http.ResponseWriter, r *http.Request) {
 
 func deleteFile(w http.ResponseWriter, r *http.Request) {
 
-	if r.Method != http.MethodDelete {
-		w.Header().Set("Allow", "DELETE")
-		http.Error(w, "Method Not Allowd", 405)
-		return
-	}
-
 	//getting the id parameter
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 
@@ -151,6 +145,8 @@ func deleteFile(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte("Image deleted "))
 
 }
 
