@@ -151,7 +151,7 @@ func deleteFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	addr := flag.String("addr", ":8000", "HTTP network address")
+	addr := flag.String("addr", ":"+os.Getenv("PORT"), "HTTP network address")
 
 	var err error
 
